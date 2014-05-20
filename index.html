@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Optic nerve yahoo capture by TylerOderkirk</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Optic nerve yahoo capture</h1>
+        <p>How NSA/GCHQ collects images from Yahoo Messenger webcam feeds</p>
+
+        <p class="view"><a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture">View the Project on GitHub <small>TylerOderkirk/optic_nerve_yahoo_capture</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>In early 2014 Edward Snowden revealed that British intelligence services had been collecting webcam images sent by Yahoo Messenger users worldwide.</p>
+
+<p>Yahoo Messenger has two features which employ a webcam:</p>
+
+<ol>
+<li>"Webcam Feed" (my term). Available since v5.0.0.1066 (Nov 2001). Users can "invite" others to view a live video stream from another user. Audio is not transmitted.</li>
+<li>"Video Chat". Available since v10.0.0.525 (Mar 2010). Users can initiate a "Video Call" to converse with live video and audio.</li>
+</ol><p>We'll discuss feature #2 at another time.</p>
+
+<p>For now, let's take a look at feature #1 and how they might have extracted images from packet captures.</p>
+
+<h3>
+<a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h3>
+
+<p>The <a href="http://www.theguardian.com/world/2014/feb/27/gchq-nsa-webcam-images-internet-yahoo">report by the Guardian</a> indicates that the GCHQ program responsible, Optic Nerve, was active from sometime in 2008 until at least sometime in 2012.</p>
+
+<p>I've been trying to break instant messenger clients since resource-editing AOL Instant Messenger's rich text editor component in the late nineties, so I was naturally curious about how difficult it was to do this.</p>
+
+<h3>
+<a name="laboratory-set-up" class="anchor" href="#laboratory-set-up"><span class="octicon octicon-link"></span></a>Laboratory set-up</h3>
+
+<p>Here's how I configured my lab:</p>
+
+<ol>
+<li>Downloaded Yahoo Messenger client v9.0.0.2018 (released Oct 2008), on a hunch that it was vulnerable.</li>
+<li>Installed the client on two Windows XP VirtualBox Virtual Machines: "VM1" and "VM2" with bridged-mode networking on two separate host machines. I had no luck configuring the ActiveX image capture stack nor the "devenum" trick in <a href="http://www.winehq.org/">WINE</a>.</li>
+<li>Created two Yahoo accounts via the client's GUI.</li>
+<li>Installed the <a href="http://www.splitcamera.com">SplitCam</a> v6.6.41 "webcam emulator" on both VMs. I didn't want to muck around with Host-&gt;Guest USB pass-through to use physical webcams.</li>
+</ol><h3>
+<a name="capturing-packets" class="anchor" href="#capturing-packets"><span class="octicon octicon-link"></span></a>Capturing packets</h3>
+
+<p>Next I captured some packets sent between clients during a video chat session. See Appendix A for some screenshots of the clients.</p>
+
+<ol>
+<li>Downloaded the first two small AVI files (<a href="http://tyleroderkirk.github.io/pagetest/fractogene.avi">1</a>, <a href="http://tyleroderkirk.github.io/pagetest/airhorse.avi">2</a>) I could find on the web and configured SplitCam to use each as a video source on VM1 and VM2 respectively.</li>
+<li>Started a <a href="http://www.wireshark.org">Wireshark</a> packet capture on the host of VM1.</li>
+<li>Logged in on both clients using my two new Yahoo accounts.</li>
+<li>Chose "Invite user to view my webcam" on VM1.</li>
+<li>Accepted request on VM2.</li>
+<li>Chose "Invite user to view my webcam" on VM2.</li>
+<li>Accepted request on VM1.</li>
+<li>Waited about 10 seconds for some image frames to be transferred.</li>
+<li>Stopped and saved the packet capture in "Wireshark/tcpdump/..." pcap format (not pcapng).</li>
+</ol><p>Here's the resulting <a href="9002018_webcam_feed_bidirectional_only_5100.pcap">400KB packet capture</a>.</p>
+
+<p>By law in the USA, you need permission to capture packets on a networks you don't own. I've only used this tool on my test network. Please see the LICENSE file for additional disclaimers.</p>
+
+<h3>
+<a name="locating-image-data" class="anchor" href="#locating-image-data"><span class="octicon octicon-link"></span></a>Locating image data</h3>
+
+<p>A quick inspection of the capture in Wireshark, confirmed by an "Endpoints" Analysis, revealed that many TCP packets were sent from port 5100 on each machine.</p>
+
+<p><img src="http://tyleroderkirk.github.io/pagetest/images/endpoints_by_packets.png" alt="myalt"></p>
+
+<p>Many of these packets contained the string <code>Kadadu-3.2</code>. Searching the web turned up <a href="http://www.kakadusoftware.com/">Kakadu Software</a> - creators of "the world's leading JPEG2000 developer toolkit".</p>
+
+<p>Sure enough the first 4 bytes of these packets, <code>ff 4f ff 51</code>, is the "magic" sequence for an "unwrapped" JPEG2000 "code stream". I confirmed this with "Export selected packet bytes" and the file(1) utility.</p>
+
+<p><img src="http://tyleroderkirk.github.io/pagetest/images/jp2_codestream_consider_cloudshark.png" alt="myalt"></p>
+
+<p>I found that <a href="http://www.irfanview.com/">IrfanView</a> v4.37 for Windows can display JPEG200 codestreams, but didn't immediately find an option for Linux. </p>
+
+<h3>
+<a name="automating-image-extraction" class="anchor" href="#automating-image-extraction"><span class="octicon octicon-link"></span></a>Automating image extraction</h3>
+
+<p>Let's write a script that will extract these codestreams and save them to disk as PNGs.</p>
+
+<p>Many tools exist to "carve" files from a packet capture based on signatures: NetworkMiner, Foremost, Ettercap, flowgrep, Xplico, Driftnet, Wireshark with a dissector, tcpextract, and others. I wrote one from scratch in Python for a few reasons:</p>
+
+<ol>
+<li>To support multiple platforms - I've tested the script on Windows XP SP3, Ubuntu 13.10, and openSUSE 13.1.</li>
+<li>For a learning experience - I wanted to try capturing from a "live" interface in addition to reading a packet capture from disk.</li>
+<li>Other tools weren't easily extensible - we need to call a codestream-&gt;PNG conversion utility for each image extracted.</li>
+</ol><p>The script uses the <a href="https://code.google.com/p/dpkt/">dpkt library</a> from Dug Song and Jon Oberheide to parse ethernet frames and the <a href="https://github.com/quintusdias/glymur">Glymur library</a> to process JPEG2000 data.</p>
+
+<p>You can download the script <a href="https://github.com/TylerOderkirk/pagetest/blob/gh-pages/optic_nerve_yahoo_capture.py">here</a>.</p>
+
+<p>If you're really impatient, I've created a virtual machine with all necessary libraries installed. The script and the .pcap file from above are in <code>/root</code>. Use 'root'/'linux' to log in. 350MB compressed/1GB uncompressed <a href="https://susestudio.com/download/46131388765088bbe50d3844d33e6acd/optic_nerve_yahoo_capture_1.i686-0.0.6.vmx.tar.gz">VMX/VMDK</a> and <a href="https://susestudio.com/download/2769c23fc4565e73c376a02439fb4c22/optic_nerve_yahoo_capture_1.i686-0.0.6.ovf.tar.gz">OVF</a> images tested with VMWare Player v6.0.2 build-1744117 and Virtualbox 4.2.16_Ubuntu r86992 respectively. <a href="https://susestudio.com/appliance/1192535/configuration/0.0.6">This</a> is the <a href="https://susestudio.com/">SUSE Studio</a> configuration used to create the above images.</p>
+
+<pre><code>$ ./pcap_parser.py --help
+usage: pcap_parser.py [-h] [-i NETWORK_INTERFACE] [-f PCAPFILE]
+
+Extracts JPEG 2000 Yahoo Messenger webcam images from given pcap file or given
+network interface and writes them to the current directory as PNG images named
+in this form: PKTNUM-SRCIP-DSTIP-YYYYMMDD-HHMMSS.bmp where PKTNUM is the
+packet number from the capture/interface, SRCIP is the source IP address,
+DSTIP is the destination IP address, and YYYYMMDD-HHMMSS is the time and date
+the image was captured.
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Input:
+  -i NETWORK_INTERFACE  Network interface to sniff packets from (e.g. 'wlan0')
+  -f PCAPFILE           PCAP file to read packets from (e.g. 'foo.pcap')
+</code></pre>
+
+<p>Here's what you'll see if you feed it the .pcap file provided in "Capturing packets" above:</p>
+
+<pre><code>$ ./pcap_parser.py -f 9002018_webcam_feed_bidirectional_only_5100.pcap
+[...]
+encountered potential yahoo messenger webcam feed data in packet number 26
+ pkt_timestamp: 1400251938.79 pkt_src: 192.168.1.247 pkt_dst: 192.168.1.238
+ data: ff:4f:ff:51:00:2f:00:00:00:00:01:40:00:00:00:f0:00:00:00:00 +[...]
+ encountered beginning of new codestream
+ writing previous codestream (size 4160 ) to /tmp/tmpuRR3dO.jpc
+ wrapping previous codestream and writing it to /tmp/tmpfWKGPG.jp2
+ writing PNG to 26-192.168.1.247-192.168.1.238-20140516_105218.png
+encountered potential yahoo messenger webcam feed data in packet number 27
+[...]
+</code></pre>
+
+<p>Extracted and converted images are written to the current directory: </p>
+
+<pre><code>$ ls
+total 8972
+100-192.168.1.247-192.168.1.238-20140516_105223.png
+109-192.168.1.247-192.168.1.238-20140516_105223.png
+114-192.168.1.247-192.168.1.238-20140516_105224.png
+120-192.168.1.247-192.168.1.238-20140516_105224.png
+126-192.168.1.247-192.168.1.238-20140516_105225.png
+[...]
+</code></pre>
+
+<h3>
+<a name="vulnerability-timeline" class="anchor" href="#vulnerability-timeline"><span class="octicon octicon-link"></span></a>Vulnerability timeline</h3>
+
+<p>As of 5/6/2014, the most recent Windows version of Yahoo Messenger doesn't encrypt webcam feeds. See Appendix B for more details on past versions.</p>
+
+<p>Note that Yahoo also offers clients for Mac, iPhone, and Android.</p>
+
+<p><img src="http://tyleroderkirk.github.io/pagetest/images/yahoo_optic_nerve_timeline_retouched.png" alt="myalt"></p>
+
+<h2>
+<a name="appendix-a---yahoo-messenger-v902018-screenshots" class="anchor" href="#appendix-a---yahoo-messenger-v902018-screenshots"><span class="octicon octicon-link"></span></a>Appendix A - Yahoo Messenger v9.0.2018 Screenshots</h2>
+
+<p><img src="http://tyleroderkirk.github.io/pagetest/images/9001912_invite_rxd.png" alt="myalt"></p>
+
+<hr><p><img src="http://tyleroderkirk.github.io/pagetest/images/9001912_login.png" alt="myalt"></p>
+
+<hr><p><img src="http://tyleroderkirk.github.io/pagetest/images/9002018_invite_friend_to_view_webcam.png" alt="myalt"></p>
+
+<h3>
+<a name="appendix-b---historic-versions-of-the-yahoo-messenger-client" class="anchor" href="#appendix-b---historic-versions-of-the-yahoo-messenger-client"><span class="octicon octicon-link"></span></a>Appendix B - Historic versions of the Yahoo Messenger client</h3>
+
+<p>I have mirrored all the above installers in <a href="https://drive.google.com/folderview?id=0BzoAun5526HhWDN2aUNCeUMtc28&amp;usp=sharing">this Google drive folder</a>. Most of them were originally retrieved from <a href="http://www.oldversion.com/">Oldversion.com</a>. </p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/TylerOderkirk">TylerOderkirk</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-50714982-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
