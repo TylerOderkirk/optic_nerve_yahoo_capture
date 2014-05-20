@@ -68,7 +68,7 @@
 <p>Next I captured some packets sent between clients during a video chat session. See Appendix A for some screenshots of the clients.</p>
 
 <ol>
-<li>Downloaded the first two small AVI files (<a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/fractogene.avi">1</a>, <a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/airhorse.avi">2</a>) I could find on the web and configured SplitCam to use each as a video source on VM1 and VM2 respectively.</li>
+<li>Downloaded the first two small AVI files (<a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/fractogene.avi">1</a>, <a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/airhorse.avi">2</a>) I could find on the web and configured SplitCam to use each as a video source on VM1 and VM2 respectively.</li>
 <li>Started a <a href="http://www.wireshark.org">Wireshark</a> packet capture on the host of VM1.</li>
 <li>Logged in on both clients using my two new Yahoo accounts.</li>
 <li>Chose "Invite user to view my webcam" on VM1.</li>
@@ -86,13 +86,13 @@
 
 <p>A quick inspection of the capture in Wireshark, confirmed by an "Endpoints" Analysis, revealed that many TCP packets were sent from port 5100 on each machine.</p>
 
-<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/endpoints_by_packets.png" alt="myalt"></p>
+<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/endpoints_by_packets.png" alt="myalt"></p>
 
 <p>Many of these packets contained the string <code>Kadadu-3.2</code>. Searching the web turned up <a href="http://www.kakadusoftware.com/">Kakadu Software</a> - creators of "the world's leading JPEG2000 developer toolkit".</p>
 
 <p>Sure enough the first 4 bytes of these packets, <code>ff 4f ff 51</code>, is the "magic" sequence for an "unwrapped" JPEG2000 "code stream". I confirmed this with "Export selected packet bytes" and the file(1) utility.</p>
 
-<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/jp2_codestream_consider_cloudshark.png" alt="myalt"></p>
+<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/jp2_codestream_consider_cloudshark.png" alt="myalt"></p>
 
 <p>I found that <a href="http://www.irfanview.com/">IrfanView</a> v4.37 for Windows can display JPEG200 codestreams, but didn't immediately find an option for Linux. </p>
 
@@ -109,7 +109,7 @@
 <li>Other tools weren't easily extensible - we need to call a codestream-&gt;PNG conversion utility for each image extracted.</li>
 </ol><p>The script uses the <a href="https://code.google.com/p/dpkt/">dpkt library</a> from Dug Song and Jon Oberheide to parse ethernet frames and the <a href="https://github.com/quintusdias/glymur">Glymur library</a> to process JPEG2000 data.</p>
 
-<p>You can download the script <a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture%0A/blob/gh-pages/optic_nerve_yahoo_capture.py">here</a>.</p>
+<p>You can view the script with syntax highlighting <a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/blob/master/optic_nerve_yahoo_capture.py">here</a> and download it <a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/raw/master/optic_nerve_yahoo_capture.py">here</a>. </p>
 
 <p>If you're really impatient, I've created a virtual machine with all necessary libraries installed. The script and the .pcap file from above are in <code>/root</code>. Use 'root'/'linux' to log in. 350MB compressed/1GB uncompressed <a href="https://susestudio.com/download/46131388765088bbe50d3844d33e6acd/optic_nerve_yahoo_capture_1.i686-0.0.6.vmx.tar.gz">VMX/VMDK</a> and <a href="https://susestudio.com/download/2769c23fc4565e73c376a02439fb4c22/optic_nerve_yahoo_capture_1.i686-0.0.6.ovf.tar.gz">OVF</a> images tested with VMWare Player v6.0.2 build-1744117 and Virtualbox 4.2.16_Ubuntu r86992 respectively. <a href="https://susestudio.com/appliance/1192535/configuration/0.0.6">This</a> is the <a href="https://susestudio.com/">SUSE Studio</a> configuration used to create the above images.</p>
 
@@ -165,16 +165,16 @@ total 8972
 
 <p>Note that Yahoo also offers clients for Mac, iPhone, and Android.</p>
 
-<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/yahoo_optic_nerve_timeline_retouched.png" alt="myalt"></p>
+<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/yahoo_optic_nerve_timeline_retouched.png" alt="myalt"></p>
 
 <h2>
 <a name="appendix-a---yahoo-messenger-v902018-screenshots" class="anchor" href="#appendix-a---yahoo-messenger-v902018-screenshots"><span class="octicon octicon-link"></span></a>Appendix A - Yahoo Messenger v9.0.2018 Screenshots</h2>
 
-<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/9001912_invite_rxd.png" alt="myalt"></p>
+<p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/9001912_invite_rxd.png" alt="myalt"></p>
 
-<hr><p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/9001912_login.png" alt="myalt"></p>
+<hr><p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/9001912_login.png" alt="myalt"></p>
 
-<hr><p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture%0A/images/9002018_invite_friend_to_view_webcam.png" alt="myalt"></p>
+<hr><p><img src="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/images/9002018_invite_friend_to_view_webcam.png" alt="myalt"></p>
 
 <h3>
 <a name="appendix-b---historic-versions-of-the-yahoo-messenger-client" class="anchor" href="#appendix-b---historic-versions-of-the-yahoo-messenger-client"><span class="octicon octicon-link"></span></a>Appendix B - Historic versions of the Yahoo Messenger client</h3>
