@@ -40,16 +40,16 @@
 <p>Yahoo Messenger has two features which employ a webcam:</p>
 
 <ol>
-<li>"Webcam Feed" (my term). Available since v5.0.0.1066 (Nov 2001). Users can "invite" others to view a live video stream from another user. Audio is not transmitted.</li>
-<li>"Video Chat". Available since v10.0.0.525 (Mar 2010). Users can initiate a "Video Call" to converse with live video and audio.</li>
+<li>"Webcam Feed" (my term). Available since v5.0.0.1066 (Nov 2001). Users can "invite" others to view their webcam. Audio is not transmitted.</li>
+<li>"Video Chat". Available since v10.0.0.525 (Mar 2010). Users can make a "Video Call" to converse with live video and audio.</li>
 </ol><p>We'll discuss feature #2 at another time.</p>
 
-<p>For now, let's take a look at feature #1 and how they might have extracted images from packet captures.</p>
+<p>For now, let's take a look at feature #1 and how NSA/GCHQ might have extracted images from packet captures.</p>
 
 <h3>
 <a name="background" class="anchor" href="#background"><span class="octicon octicon-link"></span></a>Background</h3>
 
-<p>The <a href="http://www.theguardian.com/world/2014/feb/27/gchq-nsa-webcam-images-internet-yahoo">report by the Guardian</a> indicates that the GCHQ program responsible, Optic Nerve, was active from sometime in 2008 until at least sometime in 2012.</p>
+<p>The <a href="http://www.theguardian.com/world/2014/feb/27/gchq-nsa-webcam-images-internet-yahoo">report by the Guardian</a> indicates that the GCHQ program named Optic Nerve was active from sometime in 2008 until at least sometime in 2012.</p>
 
 <p>I've been trying to break instant messenger clients since resource-editing AOL Instant Messenger's rich text editor component in the late nineties, so I was naturally curious about how difficult it was to do this.</p>
 
@@ -62,11 +62,11 @@
 <li>Downloaded Yahoo Messenger client v9.0.0.2018 (released Oct 2008), on a hunch that it was vulnerable.</li>
 <li>Installed the client on two Windows XP VirtualBox Virtual Machines: "VM1" and "VM2" with bridged-mode networking on two separate host machines. I had no luck configuring the ActiveX image capture stack nor the "devenum" trick in <a href="http://www.winehq.org/">WINE</a>.</li>
 <li>Created two Yahoo accounts via the client's GUI.</li>
-<li>Installed the <a href="http://www.splitcamera.com">SplitCam</a> v6.6.41 "webcam emulator" on both VMs. I didn't want to muck around with Host-&gt;Guest USB pass-through to use physical webcams.</li>
+<li>Installed <a href="http://www.splitcamera.com">SplitCam</a> v6.6.41, a "webcam emulator", on both VMs. I didn't want to muck around with Host-&gt;Guest USB pass-through to use physical webcams.</li>
 </ol><h3>
 <a name="capturing-packets" class="anchor" href="#capturing-packets"><span class="octicon octicon-link"></span></a>Capturing packets</h3>
 
-<p>Next I captured some packets sent between clients during a video chat session. See Appendix A for some screenshots of the clients.</p>
+<p>Next I captured the packets sent between clients while using the webcam feed feature. See Appendix A for some screenshots of the clients.</p>
 
 <ol>
 <li>Downloaded the first two small AVI files (<a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/fractogene.avi">1</a>, <a href="http://tyleroderkirk.github.io/optic_nerve_yahoo_capture/airhorse.avi">2</a>) I could find on the web and configured SplitCam to use each as a video source on VM1 and VM2 respectively.</li>
@@ -102,7 +102,7 @@
 
 <p>Let's write a script that will extract these codestreams and save them to disk as PNGs.</p>
 
-<p>Many tools exist to "carve" files from a packet capture based on signatures: NetworkMiner, Foremost, Ettercap, flowgrep, Xplico, Driftnet, Wireshark with a dissector, tcpextract, and others. I wrote one from scratch in Python for a few reasons:</p>
+<p>Many tools exist to "carve" files from a packet capture based on signatures: <a href="http://www.netresec.com/?page=NetworkMiner">NetworkMiner</a>, <a href="http://ettercap.github.io/ettercap/">Ettercap</a>, <a href="http://www.monkey.org/~jose/software/flowgrep/">flowgrep</a>, <a href="http://www.xplico.org/">Xplico</a>, <a href="http://www.ex-parrot.com/~chris/driftnet/">Driftnet</a>, Wireshark with a dissector, <a href="http://tcpxtract.sourceforge.net/">tcpxtract</a>, and others. I wrote one from scratch in Python for a few reasons:</p>
 
 <ol>
 <li>To support multiple platforms - I've tested the script on Windows XP SP3, Ubuntu 13.10, and openSUSE 13.1.</li>
@@ -112,10 +112,11 @@
 
 <p>You can view the script with syntax highlighting <a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/blob/master/optic_nerve_yahoo_capture.py">here</a> and download it <a href="https://github.com/TylerOderkirk/optic_nerve_yahoo_capture/raw/master/optic_nerve_yahoo_capture.py">here</a>. </p>
 
-<p>If you're really impatient, I've created a virtual machine with all necessary libraries installed. The script and the .pcap file from above are in <code>/root</code>. Use 'root'/'linux' to log in. 350MB compressed/1GB uncompressed <a href="https://susestudio.com/download/46131388765088bbe50d3844d33e6acd/optic_nerve_yahoo_capture_1.i686-0.0.6.vmx.tar.gz">VMX/VMDK</a> and <a href="https://susestudio.com/download/2769c23fc4565e73c376a02439fb4c22/optic_nerve_yahoo_capture_1.i686-0.0.6.ovf.tar.gz">OVF</a> images tested with VMWare Player v6.0.2 build-1744117 and Virtualbox 4.2.16_Ubuntu r86992 respectively. <a href="https://susestudio.com/appliance/1192535/configuration/0.0.6">This</a> is the <a href="https://susestudio.com/">SUSE Studio</a> configuration used to create the above images.</p>
+<p>If you're really impatient, I've created a virtual machine with all necessary libraries installed. The script and the .pcap file from above are in <code>/root</code>. Use 'root'/'linux' to log in. Here are 350MB compressed(1GB uncompressed) <a href="https://susestudio.com/download/46131388765088bbe50d3844d33e6acd/optic_nerve_yahoo_capture_1.i686-0.0.6.vmx.tar.gz">VMX/VMDK</a> and <a href="https://susestudio.com/download/2769c23fc4565e73c376a02439fb4c22/optic_nerve_yahoo_capture_1.i686-0.0.6.ovf.tar.gz">OVF</a> images tested with VMWare Player v6.0.2 build-1744117 and Virtualbox 4.2.16_Ubuntu r86992 respectively. <a href="https://susestudio.com/appliance/1192535/configuration/0.0.6">This</a> is the <a href="https://susestudio.com/">SUSE Studio</a> configuration used to create the above images.</p>
 
-<pre><code>$ ./pcap_parser.py --help
-usage: pcap_parser.py [-h] [-i NETWORK_INTERFACE] [-f PCAPFILE]
+<p>OK. Back to the script...</p>
+<pre><code>$ ./optic_nerve_yahoo_capture.py --help
+usage: optic_nerve_yahoo_capture.py [-h] [-i NETWORK_INTERFACE] [-f PCAPFILE]
 
 Extracts JPEG 2000 Yahoo Messenger webcam images from given pcap file or given
 network interface and writes them to the current directory as PNG images named
@@ -134,7 +135,7 @@ Input:
 
 <p>Here's what you'll see if you feed it the .pcap file provided in "Capturing packets" above:</p>
 
-<pre><code>$ ./pcap_parser.py -f 9002018_webcam_feed_bidirectional_only_5100.pcap
+<pre><code>$ ./optic_nerve_yahoo_capture.py -f 9002018_webcam_feed_bidirectional_only_5100.pcap
 [...]
 encountered potential yahoo messenger webcam feed data in packet number 26
  pkt_timestamp: 1400251938.79 pkt_src: 192.168.1.247 pkt_dst: 192.168.1.238
